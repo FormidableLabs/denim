@@ -1,0 +1,56 @@
+{
+  "name": "denim",
+  "version": "0.0.1",
+  "description": "A lightweight, npm-based template engine.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FormidableLabs/denim.git"
+  },
+  "author": "Ryan Roemer <ryan.roemer@formidablelabs.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FormidableLabs/denim/issues"
+  },
+  "homepage": "https://github.com/FormidableLabs/denim",
+  "bin": {
+    "denim": "bin/denim.js"
+  },
+  "scripts": {
+    "lint-server": "eslint --color lib bin",
+    "lint-server-test": "eslint --color 'test/server/*.js' test/server/spec",
+    "lint": "npm run lint-server && npm run lint-server-test",
+    "test": "mocha --opts test/server/mocha.opts test/server/spec",
+    "test-cov": "istanbul cover --config .istanbul.server.yml  _mocha -- --opts test/server/mocha.opts test/server/spec",
+    "check": "npm run lint && npm run test",
+    "check-ci": "npm run lint && npm run test-cov",
+    "build": "doctoc --notitle README.md"
+  },
+  "dependencies": {
+    "async": "^2.1.4",
+    "chalk": "^1.1.1",
+    "file-type": "^3.7.0",
+    "fs-extra": "^0.30.0",
+    "gitignore-parser": "0.0.2",
+    "inquirer": "^0.11.1",
+    "isbinaryfile": "^3.0.0",
+    "lodash": "^4.17.2",
+    "nopt": "^3.0.6",
+    "tar": "^2.2.1",
+    "temp": "^0.8.3"
+  },
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "coveralls": "^2.11.6",
+    "doctoc": "^1.2.0",
+    "eslint": "^2.13.1",
+    "eslint-config-formidable": "^2.0.1",
+    "eslint-plugin-filenames": "^1.1.0",
+    "eslint-plugin-import": "^1.16.0",
+    "eval": "^0.1.1",
+    "istanbul": "^0.4.1",
+    "mocha": "^2.3.4",
+    "mock-fs": "3.10.0",
+    "sinon": "^1.17.2",
+    "sinon-chai": "^2.8.0"
+  }
+}
