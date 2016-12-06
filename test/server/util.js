@@ -42,12 +42,12 @@ module.exports = function (base) {
       var tmpDir = "tmp-dir-" + hash;
       var fsObj = _.extend({}, root);
       fsObj[tmpDir] = {
-        "mock-archetype-0.0.1.tgz": ""
+        "mock-module-0.0.1.tgz": ""
       };
 
       var extractedObj = _.extend({}, root);
       extractedObj[tmpDir] = {
-        "mock-archetype-0.0.1.tgz": ""
+        "mock-module-0.0.1.tgz": ""
       };
       if (extracted) {
         extractedObj[tmpDir].extracted = extracted;

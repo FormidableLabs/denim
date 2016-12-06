@@ -10,6 +10,24 @@ A lightweight, npm-based template engine.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Installing from a Relative Path on the Local Filesystem](#installing-from-a-relative-path-on-the-local-filesystem)
+  - [Automating Prompts](#automating-prompts)
+- [Template Modules](#template-modules)
+  - [Templates Module Data](#templates-module-data)
+    - [Imports and Dependencies](#imports-and-dependencies)
+    - [User Prompts](#user-prompts)
+    - [Derived Data](#derived-data)
+  - [Special Data and Scenarios](#special-data-and-scenarios)
+    - [`.npmignore`, `.gitignore`](#npmignore-gitignore)
+  - [Templates Directory Ingestion](#templates-directory-ingestion)
+  - [Template Parsing](#template-parsing)
+  - [File Name Parsing](#file-name-parsing)
+- [Tips, Tricks, & Notes](#tips-tricks--notes)
+  - [npmrc File](#npmrc-file)
+
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Installation
@@ -32,7 +50,7 @@ from scratch, so you have to start somewhere...
 Invocation:
 
 ```sh
-$ denim [flags] <archetype>
+$ denim [flags] <module>
 ```
 
 Flags:
@@ -56,7 +74,7 @@ $ denim /FULL/PATH/TO/templates-module
 ```
 
 Internally, `denim` utilizes [`npm pack`](https://docs.npmjs.com/cli/pack)
-to download (but not install) an archetype package from npm, GitHub, file, etc.
+to download (but not install) a templates package from npm, GitHub, file, etc.
 There is a slight performance penalty for things like local files which have to
 be compressed and then expanded again, but we gain the very nice benefit of
 allowing `denim` to install anything `npm` can in exactly the same
@@ -67,7 +85,7 @@ manner that `npm` does.
 One exception to the "install like `npm` does" rule is installation from the
 **local filesystem**. Internally, `denim` creates a temporary directory
 to expand the download from `npm pack` and executes the process in that
-directory, meaning that relative paths to a target archetype are now incorrect.
+directory, meaning that relative paths to a target modules are now incorrect.
 
 Accordingly, if you _want_ to simulate a relative path install, you can try
 something like:
@@ -82,13 +100,13 @@ $ denim "%cd%\..\templates-module"
 
 ### Automating Prompts
 
-To facilitate automation, notably testing an archetype by generating a project
+To facilitate automation, notably testing a module by generating a project
 with `denim` and running the project's tests as part of CI, there is a
 special `--prompts=JSON_OBJECT` flag that skips the actual input prompts and
 injects fields straight from a JSON object.
 
 ```sh
-$ denim <archetype> \
+$ denim <module> \
   --prompts'{"name":"bob","quest":"popcorn","destination":"my-project"}'
 ```
 
@@ -135,10 +153,10 @@ templates/
   {{_npmignore}}
 ```
 
-### Archetype Data
+### Templates Module Data
 
-Archetypes provide data for template expansion via a `denim.js` file in the
-root of the archetype. The structure of the file is:
+Packages provide data for template expansion via a `denim.js` file in the
+root of the module. The structure of the file is:
 
 ```js
 module.exports = {
@@ -154,18 +172,18 @@ before writing for safety and initialization sanity.
 #### Imports and Dependencies
 
 The `denim.js` file is `require`-ed from a temporary `extracted` directory
-containing the full archetype. However, an `npm install` is not run in the
-archetype directory prior to starting the initialization process. This means
+containing the full module. However, an `npm install` is not run in the
+module directory prior to starting the initialization process. This means
 that you can `require` in:
 
-* Files contained in the archetype itself.
+* Files contained in the module itself.
 * Any standard node libraries. (E.g., `require("path")`, `require("fs")`).
 
 Unfortunately, you cannot require third party libraries or things that may
-be found in `<archetype>/node_modules/`. (E.g., `require("lodash")`).
+be found in `<module>/node_modules/`. (E.g., `require("lodash")`).
 
 This is a good thing, because the common case is that you will need nearly
-_none_ of the dependencies in `denim.js` prompting that are used in the archetype
+_none_ of the dependencies in `denim.js` prompting that are used in the module
 itself, so `denim` remains lightening quick by _not_ needing to do any
 `npm install`-ing.
 
@@ -179,7 +197,7 @@ of the `denim.js` object can either be an _array_ or _object_ of inquirer
 module.exports = {
   // Destination directory to write files to.
   //
-  // This field is deep merged and added _last_ to the prompts so that archetype
+  // This field is deep merged and added _last_ to the prompts so that module
   // authors can add `default` values or override the default message. You
   // could further override the `validate` function, but we suggest using the
   // existing default as it checks the directory does not already exist (which
@@ -246,7 +264,7 @@ name: {
 
 #### Derived Data
 
-Archetype authors may not wish to expose _all_ data for user input. Thus,
+Module authors may not wish to expose _all_ data for user input. Thus,
 `denim` supports a simple bespoke scheme for taking the existing user
 data and adding derived fields.
 
@@ -273,7 +291,7 @@ derived: {
 Special files like `.npmrc`, `.npmignore`, and `.gitignore` in a `templates/`
 directory are critical to the correct publishing / git lifecycle of a created
 project. However, publishing `templates/` to npm as part of publishing the
-archetype and even initializing off of a local file path via `npm pack` does not
+module and even initializing off of a local file path via `npm pack` does not
 work well with the basic layout of:
 
 ```
@@ -320,7 +338,7 @@ To address this, we have special `derived` values built in by default to
 * `{{_npmrc}}` -> `.npmrc`
 * `{{_eslintrc}}` -> `.eslintrc`
 
-In your archetype `templates` directory you should add any / none of these files
+In your module `templates` directory you should add any / none of these files
 with the following names instead of their real ones:
 
 ```
@@ -332,7 +350,7 @@ templates/
 ```
 
 As a side note for your git usage, this now means that `templates/.gitignore`
-doesn't control the templates anymore and your archetype's root `.gitignore`
+doesn't control the templates anymore and your module's root `.gitignore`
 must appropriately ignore files in `templates/` for git commits.
 
 
@@ -344,7 +362,7 @@ an `denim.js` either via `prompts` (allowing a user to pick a value) or `derived
 data. Either of these approaches can choose 1+ different directories to find
 templates than the default `templates/`.
 
-`denim` mostly just walks the templates directory of an archetype looking
+`denim` mostly just walks the templates directory of a module looking
 for any files with the following features:
 
 * An empty templates directory is permitted, but a non-existent one will produce
@@ -424,7 +442,7 @@ a file-system path:
 src/components/whiz-bang-component.jsx
 ```
 
-The source archetype should contain a full file path like:
+The source module should contain a full file path like:
 
 ```
 templates/src/components/{{packageName}}.jsx
@@ -447,61 +465,6 @@ directory completely outside of the current working directory. So, while
 `npm info <module>` or `npm pack <module>` would work just fine with an
 `.npmrc` file in the current working directory, `denim` will not.
 
-
-## Archetype Development Guide
-
-There is a "chicken vs. egg" problem when developing changes to both an
-archetype _and_ the `templates/` templates. Here is a workflow that should be
-appropriate for most scenarios using `templates-module` as an example.
-
-First, `npm link` your archetype and its `-dev` version if applicable.
-
-```sh
-# Link prod archetype
-$ cd /PATH/TO/templates-module
-$ npm link
-
-# Link dev archetype (if you have one)
-$ cd dev
-$ npm link
-```
-
-Next, install off _directory_ in workspace of your choosing:
-
-```sh
-$ cd /PATH/TO/TEMP_WORKSPACE
-$ npm install -g denim
-$ denim /PATH/TO/templates-module
-# ... answer prompts, etc.
-
-[denim] New templates-module project is ready at: PROJECT_NAME
-```
-
-Then, change to project directory, npm link as appropriate and install.
-
-```sh
-$ cd PROJECT_NAME
-$ npm link templates-module
-$ npm link templates-module-dev
-$ npm install
-```
-
-You can check you are using the appropriately symlinked modules on Mac/Linux
-with:
-
-```sh
-$ ls -l node_modules | grep ^l
-lrwxr-xr-x   1 USER  COMPUTER Users    64 Jan 29 16:20 templates-module -> ../../../../.nvm/v4.2.4/lib/node_modules/templates-module
-lrwxr-xr-x   1 USER  COMPUTER Users    68 Jan 29 16:20 templates-module-dev -> ../../../../.nvm/v4.2.4/lib/node_modules/templates-module-dev
-```
-
-All actions in your generated project will now use your "under development"
-archetype on your local filesystem.
-
-*Side Note* - our CI checks for initializing a new project from scratch for
-archetypes like `templates-module` pretty much follows this exact scheme.
-See our above section on [Automating Prompts](#automating-prompts) for links
-and other setup information.
 
 [inquirer]: https://github.com/SBoudrias/Inquirer.js
 [inq-questions]: https://github.com/SBoudrias/Inquirer.js#question
