@@ -1,6 +1,10 @@
 History
 =======
 
+## 0.0.3
+
+* Publish `test/` for other project usage.
+
 ## 0.0.2
 
 * Add `package.json:main`.

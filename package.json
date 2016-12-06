@@ -1,6 +1,6 @@
 {
   "name": "denim",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A lightweight, npm-based template engine.",
   "repository": {
     "type": "git",
