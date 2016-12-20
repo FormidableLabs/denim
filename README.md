@@ -337,6 +337,7 @@ To address this, we have special `derived` values built in by default to
 * `{{_npmignore}}` -> `.npmignore`
 * `{{_npmrc}}` -> `.npmrc`
 * `{{_eslintrc}}` -> `.eslintrc`
+* `{{_env}}` -> `.env`
 
 In your module `templates` directory you should add any / none of these files
 with the following names instead of their real ones:
@@ -347,6 +348,7 @@ templates/
   {{_npmignore}}
   {{_npmrc}}
   {{_eslintrc}}
+  {{_env}}
 ```
 
 As a side note for your git usage, this now means that `templates/.gitignore`
