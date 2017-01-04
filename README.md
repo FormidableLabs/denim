@@ -179,12 +179,12 @@ in `denim.js` configuration files. A brief list:
     * `_templatesDir` (`"templates"`): The directory root of the templates to
       use during inflation.
     * `_templatesFilter` (_a noop function_): A function with the signature
-      `(filePath, included)` where `filePath` is the full, resolved path to
-      a file, and `included` is a boolean indicating whether or not denim would
-      ordinarily include it (e.g., it is not excluded by the `.gitignore`). An
-      overriding function should return `true` or `false` based on custom logic
-      and can optionally use the `included` parameter from denim's default
-      logic.
+      `(filePath, included)` where `filePath` is the resolved path to a file
+      (relative to templates directory), and `included` is a boolean indicating
+      whether or not denim would ordinarily include it (e.g., it is not excluded
+      by the `.gitignore`). An overriding function should return `true` or
+      `false` based on custom logic and can optionally use the `included`
+      parameter from denim's default logic.
 * _File naming helpers_
     * `_gitignore` (`".gitignore"`)
     * `_npmignore` (`".npmignore"`)

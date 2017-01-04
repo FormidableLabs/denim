@@ -119,6 +119,81 @@ describe("bin/" + SCRIPT, function () {
       });
     }));
 
+    it("allows overriding templates filter", stdioWrap(function (done) {
+      // Manually hack together a denim.js with functions.
+      var denimJs = "module.exports = " + JSON.stringify({
+        prompts: {
+          textVar: { message: "a text template path variable" }
+        },
+        derived: {
+          _templatesFilter: "TOKEN_TEMPLATES_FILTER",
+          oneVar: "TOKEN_ONE_VAR"
+        }
+      })
+        .replace("\"TOKEN_TEMPLATES_FILTER\"", function (data, cb) {
+          cb(null, function (filePath, included) {
+              // Start with excludes...
+            return filePath.indexOf("one/") !== 0 &&  // Remove anything starting with "one/"
+              filePath !== "two/nuke.txt" &&          // Exact file path exclusion
+              included                                // Default
+              ||
+              // Then, unconditional includes that override...
+              filePath === "two/alsoignored.txt";     // Override gitignore to include
+          });
+        }.toString())
+        .replace("\"TOKEN_ONE_VAR\"", function (data, cb) {
+          cb(null, "one");
+        }.toString());
+
+      var stubs = mockFlow({
+        "denim.js": denimJs,
+        "templates": {
+          ".gitignore": "*/gitignored.txt\n*/alsoignored.txt",
+          "one": {
+            // Normal path. Excluded because of "one".
+            "foo.js": "module.exports = { foo: 42 };"
+          },
+          "{{oneVar}}": {
+            // Path that is resolved through template variable. Excluded because of "one".
+            "bar.js": "module.exports = { bar: 'bar' };"
+          },
+          "two": {
+            // Should be kept.
+            "baz.js": "module.exports = { baz: 'baz' };",
+            "{{textVar}}.txt": "texty mctextface",
+            // Git ignored, but custom filter overrides with include.
+            "alsoignored.txt": "kept with custom fn",
+            // Should be excluded by "two/nuke.txt" match.
+            "nuke.txt": "nuke me",
+            // Should be excluded by .gitignore.
+            "gitignored.txt": "git hates me"
+          }
+        }
+      });
+
+      // Note: These have to match prompt fields + `destination` in order.
+      stubs.prompt
+        .reset()
+        .onCall(0).yields("text")
+        .onCall(1).yields("dest");
+
+      init({ argv: ["node", SCRIPT, "mock-module"] }, function (err) {
+        if (err) { return void done(err); }
+
+        expect(base.fileRead("dest/.gitignore")).to.contain("gitignored.txt");
+        expect(base.fileRead("dest/two/baz.js")).to.contain("module.exports = { baz: 'baz' };");
+        expect(base.fileRead("dest/two/text.txt")).to.contain("texty mctextface");
+        expect(base.fileRead("dest/two/alsoignored.txt")).to.contain("kept with custom fn");
+
+        expect(base.fileExists("dest/one/foo.js")).to.be.false;
+        expect(base.fileExists("dest/one/bar.js")).to.be.false;
+        expect(base.fileExists("dest/two/nuke.txt")).to.be.false;
+        expect(base.fileExists("dest/two/gitignored.txt")).to.be.false;
+
+        done();
+      });
+    }));
+
     it("initializes a basic project", stdioWrap(function (done) {
       var stubs = mockFlow({
         "denim.js": "module.exports = " + JSON.stringify({
