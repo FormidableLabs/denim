@@ -154,6 +154,7 @@ describe("lib/prompts", function () {
     runStub.yields("destination");
 
     async.series([
+      // The basics.
       promptsWithData({
         derived: {
           foo: function (data, cb) { cb(null, "foo"); },
@@ -162,6 +163,17 @@ describe("lib/prompts", function () {
       }, function (data) {
         expect(norm(data)).to.deep.equal(addDefaults({ foo: "foo", bar: "bar" }));
       }),
+      // Override special function-based variables.
+      promptsWithData({
+        derived: {
+          _templatesFilter: function (data, cb) { cb(null, function () { return true; }); }
+        }
+      }, function (data) {
+        expect(norm(data)).to.deep.equal(addDefaults({
+          _templatesFilter: function () { return true; }
+        }));
+      }),
+      // Deferred resolutions.
       promptsWithData({
         derived: {
           deferred: function (data, cb) {
