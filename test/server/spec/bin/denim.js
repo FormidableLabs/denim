@@ -131,11 +131,11 @@ describe("bin/" + SCRIPT, function () {
         }
       })
         .replace("\"TOKEN_TEMPLATES_FILTER\"", function (data, cb) {
-          cb(null, function (filePath, included) {
+          cb(null, function (filePath, isIncluded) {
               // Start with excludes...
             return filePath.indexOf("one/") !== 0 &&  // Remove anything starting with "one/"
               filePath !== "two/nuke.txt" &&          // Exact file path exclusion
-              included                                // Default
+              isIncluded                              // Default
               ||
               // Then, unconditional includes that override...
               filePath === "two/alsoignored.txt";     // Override gitignore to include
