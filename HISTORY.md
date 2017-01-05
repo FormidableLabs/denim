@@ -1,7 +1,7 @@
 History
 =======
 
-## Unreleased
+## 0.1.0
 
 * Add `_templatesFilter` default derived special variable support.
   [#4](https://github.com/FormidableLabs/denim/issues/4)
