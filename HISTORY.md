@@ -1,6 +1,14 @@
 History
 =======
 
+## Unreleased
+
+* Add `_templatesFilter` default derived special variable support.
+  [#4](https://github.com/FormidableLabs/denim/issues/4)
+* Change internal `.gitignore` default filtering to use the resolved path name
+  (e.g., `"foo/bar.txt"`) instead of unexpanded template path (e.g.,
+  `"{{varForFoo}}/bar.txt"`).
+
 ## 0.0.3
 
 * Publish `test/` for other project usage.

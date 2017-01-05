@@ -5,7 +5,6 @@ var async = require("async");
 var Prompt = require("inquirer/lib/prompts/base");
 var prompts = require("../../../../lib/prompts");
 var base = require("../base.spec");
-var addDefaults = base.addPromptDefaults.bind(base);
 
 // Helpers
 /**
@@ -49,6 +48,23 @@ var promptsWithData = function (init, setupFn, assertFn) {
   };
 };
 
+/**
+ * We clone functions in mocking configs which makes deep comparisons fail.
+ * This method mutates the final data object to be more "comparable" by
+ * doing things like stringifying functions.
+ *
+ * @param {Object}    data  data to compared
+ * @returns {Object}        normalized data
+ */
+var norm = function (data) {
+  return _.mapValues(data, function (val) {
+    return _.isFunction(val) ? val.toString() : val;
+  });
+};
+
+var addDefaults = function (data) {
+  return norm(base.addPromptDefaults(data));
+};
 
 describe("lib/prompts", function () {
   var runStub;
@@ -110,13 +126,13 @@ describe("lib/prompts", function () {
 
     async.series([
       promptsWithData({}, function (data) {
-        expect(data).to.deep.equal(addDefaults());
+        expect(norm(data)).to.deep.equal(addDefaults());
       }),
       promptsWithData({ prompts: [] }, function (data) {
-        expect(data).to.deep.equal(addDefaults());
+        expect(norm(data)).to.deep.equal(addDefaults());
       }),
       promptsWithData({ prompts: {}, derived: {} }, function (data) {
-        expect(data).to.deep.equal(addDefaults());
+        expect(norm(data)).to.deep.equal(addDefaults());
       })
     ], done);
   });
@@ -130,7 +146,7 @@ describe("lib/prompts", function () {
       prompts: { name: { message: "Name" } }
     }, function (data) {
       expect(runStub).to.not.be.called;
-      expect(data).to.deep.equal(addDefaults({ name: "Bob" }));
+      expect(norm(data)).to.deep.equal(addDefaults({ name: "Bob" }));
     })(done);
   });
 
@@ -138,14 +154,26 @@ describe("lib/prompts", function () {
     runStub.yields("destination");
 
     async.series([
+      // The basics.
       promptsWithData({
         derived: {
           foo: function (data, cb) { cb(null, "foo"); },
           bar: function (data, cb) { cb(null, "bar"); }
         }
       }, function (data) {
-        expect(data).to.deep.equal(addDefaults({ foo: "foo", bar: "bar" }));
+        expect(norm(data)).to.deep.equal(addDefaults({ foo: "foo", bar: "bar" }));
       }),
+      // Override special function-based variables.
+      promptsWithData({
+        derived: {
+          _templatesFilter: function (data, cb) { cb(null, function () { return true; }); }
+        }
+      }, function (data) {
+        expect(norm(data)).to.deep.equal(addDefaults({
+          _templatesFilter: function () { return true; }
+        }));
+      }),
+      // Deferred resolutions.
       promptsWithData({
         derived: {
           deferred: function (data, cb) {
@@ -155,7 +183,7 @@ describe("lib/prompts", function () {
           }
         }
       }, function (data) {
-        expect(data).to.deep.equal(addDefaults({ deferred: "foo" }));
+        expect(norm(data)).to.deep.equal(addDefaults({ deferred: "foo" }));
       })
     ], done);
   });
@@ -204,7 +232,7 @@ describe("lib/prompts", function () {
           .onCall(0).yields("2016")
           .onCall(1).yields("destination");
       }, function (data) {
-        expect(data).to.deep.equal(addDefaults({ licenseDate: "2016" }));
+        expect(norm(data)).to.deep.equal(addDefaults({ licenseDate: "2016" }));
       }),
 
       promptsWithData({
@@ -219,7 +247,7 @@ describe("lib/prompts", function () {
           .onCall(1).yields("The Whiz Bang")
           .onCall(2).yields("destination");
       }, function (data) {
-        expect(data).to.deep.equal(addDefaults({
+        expect(norm(data)).to.deep.equal(addDefaults({
           packageName: "whiz-bang",
           packageDescription: "The Whiz Bang"
         }));
@@ -244,7 +272,7 @@ describe("lib/prompts", function () {
         .onCall(0).yields("2016")
         .onCall(1).yields("destination");
     }, function (data) {
-      expect(data).to.deep.equal(addDefaults({
+      expect(norm(data)).to.deep.equal(addDefaults({
         year: "2016",
         reverseYear: "6102",
         independent: "independent"
@@ -266,7 +294,7 @@ describe("lib/prompts", function () {
         .onCall(0).yields("prompts")
         .onCall(1).yields("destination");
     }, function (data) {
-      expect(data).to.deep.equal(addDefaults({
+      expect(norm(data)).to.deep.equal(addDefaults({
         foo: "prompts"
       }));
     })(done);

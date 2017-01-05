@@ -17,6 +17,7 @@ A lightweight, npm-based template engine.
   - [Automating Prompts](#automating-prompts)
 - [Template Modules](#template-modules)
   - [Templates Module Data](#templates-module-data)
+    - [Special Variables](#special-variables)
     - [Imports and Dependencies](#imports-and-dependencies)
     - [User Prompts](#user-prompts)
     - [Derived Data](#derived-data)
@@ -168,6 +169,27 @@ module.exports = {
 
 Note that `denim` requires `destination` output directories to not exist
 before writing for safety and initialization sanity.
+
+#### Special Variables
+
+There are several default data fields provided by denim that can be overridden
+in `denim.js` configuration files. A brief list:
+
+* _Control_
+    * `_templatesDir` (`"templates"`): The directory root of the templates to
+      use during inflation.
+    * `_templatesFilter` (_a noop function_): A function with the signature
+      `(filePath, isIncluded)` where `filePath` is the resolved path to a file
+      (relative to templates dir), and `isIncluded` is a boolean indicating
+      whether or not denim would ordinarily include it (e.g., it is not excluded
+      by the `.gitignore`). An overriding function should return `true` or
+      `false` based on custom logic and can optionally use the `isIncluded`
+      parameter from denim's default logic.
+* _File naming helpers_
+    * `_gitignore` (`".gitignore"`)
+    * `_npmignore` (`".npmignore"`)
+    * `_npmrc` (`".npmrc"`):
+    * `_eslintrc` (`".eslintrc"`)
 
 #### Imports and Dependencies
 
