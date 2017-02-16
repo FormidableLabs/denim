@@ -194,6 +194,38 @@ describe("bin/" + SCRIPT, function () {
       });
     }));
 
+    // Correctly applies git ignore rules.
+    // Bug: https://github.com/FormidableLabs/denim/issues/9
+    it("allows npmignore, npmrc when npm is in gitignore", stdioWrap(function (done) {
+      var stubs = mockFlow({
+        "templates": {
+          ".gitignore": ".npm\n",
+          ".npmignore": "holla",
+          ".npmrc": "// holla too",
+          ".npm": {
+            "test.txt": "should be ignored"
+          }
+        }
+      });
+
+      // Note: These have to match prompt fields + `destination` in order.
+      stubs.prompt
+        .reset()
+        .onCall(0).yields("dest");
+
+      init({ argv: ["node", SCRIPT, "mock-module"] }, function (err) {
+        if (err) { return void done(err); }
+
+        expect(base.fileRead("dest/.gitignore")).to.contain(".npm");
+        expect(base.fileRead("dest/.npmignore")).to.contain("holla");
+        expect(base.fileRead("dest/.npmrc")).to.contain("holla");
+
+        expect(base.fileExists(".npm/test.txt")).to.be.false;
+
+        done();
+      });
+    }));
+
     it("initializes a basic project", stdioWrap(function (done) {
       var stubs = mockFlow({
         "denim.js": "module.exports = " + JSON.stringify({
