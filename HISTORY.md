@@ -1,7 +1,7 @@
 History
 =======
 
-## Unreleased
+## 0.1.1
 
 * Fix bug wherein `gitignore-parser` did not correctly match `.gitignore` glob
   patterns like `git` actually does. Switch to `parse-gitignore` library and
