@@ -1,6 +1,13 @@
 History
 =======
 
+## Unreleased
+
+* Fix bug wherein `gitignore-parser` did not correctly match `.gitignore` glob
+  patterns like `git` actually does. Switch to `parse-gitignore` library and
+  add regression tests.
+  [#9](https://github.com/FormidableLabs/denim/issues/9)
+
 ## 0.1.0
 
 * Add `_templatesFilter` default derived special variable support.
