@@ -194,12 +194,13 @@ describe("bin/" + SCRIPT, function () {
       });
     }));
 
-    // Correctly applies git ignore rules.
+    // Correctly applies git ignore rules, even with negated expressions
     // Bug: https://github.com/FormidableLabs/denim/issues/9
+    // Bug: https://github.com/FormidableLabs/denim/issues/11
     it("allows npmignore, npmrc when npm is in gitignore", stdioWrap(function (done) {
       var stubs = mockFlow({
         "templates": {
-          ".gitignore": ".npm\n",
+          ".gitignore": "!nomatch\n.npm\n",
           ".npmignore": "holla",
           ".npmrc": "// holla too",
           ".npm": {
