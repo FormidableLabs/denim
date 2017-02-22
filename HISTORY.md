@@ -1,6 +1,12 @@
 History
 =======
 
+## 0.1.2
+
+* Fix bug from previous bugfix where any negated `.gitignore` expression
+  prevented **any** files from being created from templates.
+  [#11](https://github.com/FormidableLabs/denim/issues/11)
+
 ## 0.1.1
 
 * Fix bug wherein `gitignore-parser` did not correctly match `.gitignore` glob
