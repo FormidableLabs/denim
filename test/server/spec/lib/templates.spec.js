@@ -310,6 +310,34 @@ describe("lib/templates", function () {
       });
     });
 
+    describe("env file", function () {
+      var instance;
+
+      beforeEach(function () {
+        base.mockFs({
+          "extracted/templates": {
+            "{{_env}}": "---"  // Use token name per our guidelines
+          }
+        });
+
+        instance = new Templates({
+          src: "",
+          dest: "dest",
+          data: base.addPromptDefaults() // Always get these from prompts
+        });
+        _process = instance.process.bind(instance);
+      });
+
+      it("supports .env file template", function (done) {
+        _process(function (err) {
+          if (err) { return void done(err); }
+
+          expect(base.fileRead("dest/.env")).to.equal("---");
+          done();
+        });
+      });
+    });
+
     describe("basic templates", function () {
       var basicTemplates;
 
