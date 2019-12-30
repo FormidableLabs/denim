@@ -490,7 +490,7 @@ directory completely outside of the current working directory. So, while
 
 [inquirer]: https://github.com/SBoudrias/Inquirer.js
 [inq-questions]: https://github.com/SBoudrias/Inquirer.js#question
-[trav_img]: https://api.travis-ci.org/FormidableLabs/denim.svg
-[trav_site]: https://travis-ci.org/FormidableLabs/denim
+[trav_img]: https://api.travis-ci.com/FormidableLabs/denim.svg
+[trav_site]: https://travis-ci.com/FormidableLabs/denim
 [cov_img]: https://img.shields.io/coveralls/FormidableLabs/denim.svg
 [cov_site]: https://coveralls.io/r/FormidableLabs/denim
