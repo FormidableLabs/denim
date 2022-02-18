@@ -494,3 +494,8 @@ directory completely outside of the current working directory. So, while
 [trav_site]: https://travis-ci.org/FormidableLabs/denim
 [cov_img]: https://img.shields.io/coveralls/FormidableLabs/denim.svg
 [cov_site]: https://coveralls.io/r/FormidableLabs/denim
+
+
+## Maintenance Status
+
+**Archived:** This project is no longer maintained by Formidable. We are no longer responding to issues or pull requests unless they relate to security concerns. We encourage interested developers to fork this project and make it their own!
